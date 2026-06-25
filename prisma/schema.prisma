@@ -11,3 +11,59 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Cliente {
+  id          String   @id @default(cuid())
+  nombre      String
+  apellido    String
+  dni         String   @unique
+  email       String?
+  telefono    String?
+  polizas     Poliza[]
+  createdAt   DateTime @default(now())
+}
+
+model Poliza {
+  id            String      @id @default(cuid())
+  numero        String      @unique
+  tipo          TipoPoliza  // AUTO, HOGAR, VIDA, etc.
+  compania      String
+  premio        Float       // monto mensual/anual
+  fechaInicio   DateTime
+  fechaVencimiento DateTime
+  estado        EstadoPoliza // VIGENTE, POR_VENCER, VENCIDA, RENOVADA
+  clienteId     String
+  cliente       Cliente     @relation(fields: [clienteId], references: [id])
+  pagos         Pago[]
+  createdAt     DateTime    @default(now())
+}
+
+model Pago {
+  id        String   @id @default(cuid())
+  monto     Float
+  fecha     DateTime
+  estado    EstadoPago // PAGADO, PENDIENTE, VENCIDO
+  polizaId  String
+  poliza    Poliza   @relation(fields: [polizaId], references: [id])
+}
+
+enum TipoPoliza { 
+  AUTO 
+  HOGAR 
+  VIDA 
+  COMERCIO 
+  MOTO 
+  }
+
+enum EstadoPoliza { 
+  VIGENTE 
+  POR_VENCER 
+  VENCIDA 
+  RENOVADA 
+  }
+
+enum EstadoPago { 
+  PAGADO 
+  PENDIENTE 
+  VENCIDO
+   }
